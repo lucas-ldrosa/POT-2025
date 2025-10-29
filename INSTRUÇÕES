@@ -1,0 +1,89 @@
+-- ===================
+-- INSTRUÇÕES INICIAIS
+-- =================== 
+
+Baixa e extrair todos os arquivos na pasta htdocs localizada dentro do diretório de instalação do Xampp.
+Caminho exemplo: C:\xampp\htdocs
+
+-- ===============================================
+-- INSTRUÇÕES PARA FUNCIONAMENTO DO BANCO DE DADOS
+-- ===============================================
+
+Editar o arquivo config.php com seu software de preferência, e na linha 6 inserir a senha do seu banco de dados no local indicado.
+
+-- ===================================
+-- CRIAR O BANCO DE DADOS
+-- ===================================
+
+Utilizando o software MySQL Workbench, inserir os seguintes comandos para criar o banco de dados do hotel:
+
+CREATE DATABASE IF NOT EXISTS hotel_reservas;
+USE hotel_reservas;
+
+-- Configurar charset
+SET NAMES utf8mb4;
+SET character_set_client = utf8mb4;
+
+-- ===================================
+-- TABELA: quartos
+-- ===================================
+
+CREATE TABLE `quartos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `numero` varchar(10) NOT NULL,
+  `tipo` varchar(50) NOT NULL,
+  `preco` decimal(10,2) NOT NULL,
+  `descricao` text,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `numero_unique` (`numero`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================
+-- TABELA: reservas
+-- ===================================
+CREATE TABLE `reservas` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `quarto_id` int NOT NULL,
+  `nome_cliente` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `telefone` varchar(20) NOT NULL,
+  `cpf` varchar(14) DEFAULT NULL,
+  `data_checkin` date NOT NULL,
+  `data_checkout` date NOT NULL, 
+  `status` enum('confirmada','cancelada','pendente') NOT NULL DEFAULT 'pendente',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP, --
+  PRIMARY KEY (`id`),
+  KEY `fk_quarto` (`quarto_id`),
+  CONSTRAINT `fk_reserva_quarto` FOREIGN KEY (`quarto_id`) REFERENCES `quartos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================
+-- INSERINDO DADOS DE EXEMPLO NO BANCO
+-- ===================================
+
+USE hotel_reservas;
+
+-- ===================================
+-- Inserir Quartos de Exemplo
+-- ===================================
+INSERT INTO `quartos` (numero, tipo, preco, descricao, ativo) VALUES
+('101', 'SOLTEIRO', 299.00, 'Quarto com cama solteiro, banheiro privativo e WiFi grátis', 1),
+('102', 'CASAL', 399.00, 'Quarto aconchegante com cama de casal, ar condicionado e TV LED', 1),
+('103', 'CASAL', 399.00, 'Quarto com varanda, vista para a cidade, minibar e cofre', 1),
+('201', 'SUITE', 599.00, 'Suite luxuosa com sala, quarto separado, jacuzzi e serviço de quarto', 1),
+('202', 'SOLTEIRO', 299.00, 'Quarto simples e funcional para hóspedes de negócios', 1),
+('203', 'CASAL', 449.00, 'Quarto premium com cama de casal king, hidromassagem e varanda', 1),
+('301', 'SUITE', 699.00, 'Suite presidencial com piscina privativa e vista panorâmica', 1),
+('302', 'CASAL', 399.00, 'Quarto com décor moderno, cama confortável e banheiro espaçoso', 1);
+
+-- ===================================
+-- Inserir Reservas de Exemplo
+-- ===================================
+INSERT INTO `reservas` (quarto_id, nome_cliente, email, telefone, cpf, data_checkin, data_checkout, status) VALUES
+(1, 'João da Silva', 'joao@example.com', '(11) 99999-9999', '123.456.789-01', DATE_ADD(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 7 DAY), 'confirmada'),
+(2, 'Maria Santos', 'maria@example.com', '(11) 98888-8888', '987.654.321-09', DATE_ADD(CURDATE(), INTERVAL 10 DAY), DATE_ADD(CURDATE(), INTERVAL 12 DAY), 'confirmada'),
+(3, 'Pedro Oliveira', 'pedro@example.com', '(11) 97777-7777', '555.123.456-78', DATE_ADD(CURDATE(), INTERVAL 15 DAY), DATE_ADD(CURDATE(), INTERVAL 17 DAY), 'confirmada');
+
+//
